@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+ 
+model User {
+  id Int  @id @default(autoincrement())
+  email String @unique
+  name String?
+  Password String
+  telephone String
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+  Role  String @default("USER")
+
+  profile Profile?
+  
+
+  tenantid Int
+  tenant Tenant @relation(fields: [tenantid],references: [id])
+  @@map("Users")
+  }
+
+
+model Profile {
+   id Int @id @default(autoincrement())
+   userid Int @unique
+   user User @relation(fields: [userid],references: [id])
+}
+
+model Tenant {
+  id Int @id @default(autoincrement())
+  name       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users User[]
+}
+
+
+model Post {
+  id Int @id @default(autoincrement())
+  categories  Postcategory[]
+}
+
+model  category {
+  id Int @id @default(autoincrement())
+  posts Postcategory[]
+}
+
+model Postcategory {
+  postid Int 
+  categoryid Int
+  post Post @relation(fields: [postid],references: [id])
+  category category @relation(fields: [categoryid],references: [id])
+  @@id([postid,categoryid])
+}
